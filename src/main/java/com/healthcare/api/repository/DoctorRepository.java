@@ -1,6 +1,8 @@
 package com.healthcare.api.repository;
 
 import com.healthcare.api.entity.Doctor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,5 +14,6 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
 
     Optional<Doctor> findByEmail(String email);
 
-    List<Doctor> findBySpecialty(String specialty);
+    Page<Doctor> findBySpecialtyContainingIgnoreCase(String specialty, Pageable pageable);
+
 }
