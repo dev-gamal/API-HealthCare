@@ -14,6 +14,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
@@ -92,10 +95,11 @@ class AppointmentServiceTest {
         appointment2.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appointment2);
 
-        List<AppointmentResponseDTO> result = appointmentService.getAllAppointments();
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<AppointmentResponseDTO> result = appointmentService.getAllAppointments(pageable);
 
         assertNotNull(result);
-        assertEquals(2, result.size());
+        assertEquals(2, result.getTotalElements());
     }
 
     @Test
@@ -123,11 +127,12 @@ class AppointmentServiceTest {
         appointmentPatient2.setStatus(AppointmentStatus.PLANNED);
         appointmentRepository.save(appointmentPatient2);
 
-        List<AppointmentResponseDTO> result = appointmentService.getAppointmentByPatient(patient2.getId());
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<AppointmentResponseDTO> result = appointmentService.getAppointmentByPatient(patient2.getId(), pageable);
 
         assertNotNull(result);
-        assertEquals(1, result.size());
-        assertEquals("Hamid Arbaoui", result.get(0).getPatientCompleteName());
+        assertEquals(1, result.getTotalElements());
+        assertEquals("Hamid Arbaoui", result.getContent().get(0).getPatientCompleteName());
 
     }
 
