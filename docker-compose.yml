@@ -4,7 +4,7 @@ services:
   db:
     image: mysql:8.0
     container_name: healthcare_db
-    restart: unless-stopped
+    restart: no
     ports:
       - "3306:3306"
     environment:
@@ -23,7 +23,7 @@ services:
   app:
     build: .
     container_name: healthcare_app
-    restart: unless-stopped
+    restart: no
     ports:
       - "8080:8080"
     depends_on:
