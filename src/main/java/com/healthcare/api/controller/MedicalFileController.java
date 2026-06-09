@@ -2,6 +2,7 @@ package com.healthcare.api.controller;
 
 import com.healthcare.api.dto.MedicalFileRequestDTO;
 import com.healthcare.api.dto.MedicalFileResponseDTO;
+import com.healthcare.api.service.AppointmentService;
 import com.healthcare.api.service.MedicalFileService;
 import com.healthcare.api.service.PdfGeneratorService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,6 +27,7 @@ import java.io.ByteArrayInputStream;
 public class MedicalFileController {
     private final MedicalFileService medicalFileService;
     private final PdfGeneratorService pdfGeneratorService;
+    private final AppointmentService appointmentService;
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
