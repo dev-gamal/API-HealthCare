@@ -3,30 +3,44 @@ package com.healthcare.api.service;
 import com.healthcare.api.dto.PatientRequestDTO;
 import com.healthcare.api.dto.PatientResponseDTO;
 import com.healthcare.api.entity.Patient;
+import com.healthcare.api.entity.Roles;
 import com.healthcare.api.mapper.PatientMapper;
 import com.healthcare.api.repository.PatientRepository;
+import com.healthcare.api.repository.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class PatientService {
     private final PatientRepository patientRepository;
+    private final UserRepository userRepository;
     private final PatientMapper patientMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     @CacheEvict(value = "patients", allEntries = true)
     public PatientResponseDTO createPatient(PatientRequestDTO dto) {
-        if (patientRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("A patient with this email already exists !");
+        if (userRepository.existsByUsername(dto.getUsername())) {
+            throw new IllegalArgumentException("A user with this username already exists!");
+        }
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("A user with this email already exists!");
         }
 
         Patient patient = patientMapper.toEntity(dto);
+
+        patient.setUsername(dto.getUsername());
+        patient.setEmail(dto.getEmail());
+        patient.setPassword(passwordEncoder.encode(dto.getPassword()));
+        patient.setRole(Roles.PATIENT);
+
         Patient savePatient = patientRepository.save(patient);
         return patientMapper.toResponseDTO(savePatient);
     }
@@ -51,13 +65,20 @@ public class PatientService {
     @Transactional
     @CacheEvict(value = "patients", allEntries = true)
     public PatientResponseDTO updatePatient(Long id, PatientRequestDTO dto) {
-        Patient patient = patientRepository.findById(id).orElseThrow(() -> new RuntimeException("This patient doesn't exist"));
+        Patient patient = patientRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("This patient doesn't exist"));
 
         patient.setLastName(dto.getLastName());
         patient.setFirstName(dto.getFirstName());
-        patient.setEmail(dto.getEmail());
         patient.setPhone(dto.getPhone());
         patient.setBirthDate(dto.getBirthDate());
+
+        if (!patient.getEmail().equals(dto.getEmail())) {
+            if (userRepository.existsByEmail(dto.getEmail())) {
+                throw new IllegalArgumentException("This email is already in use by another user!");
+            }
+            patient.setEmail(dto.getEmail());
+        }
 
         Patient updatePatient = patientRepository.save(patient);
         return patientMapper.toResponseDTO(updatePatient);

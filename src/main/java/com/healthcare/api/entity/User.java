@@ -16,6 +16,7 @@ import java.util.List;
 @Data @NoArgsConstructor @AllArgsConstructor
 @Builder
 @Table(name = "users")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
