@@ -6,6 +6,7 @@ import com.healthcare.api.entity.Appointment;
 import com.healthcare.api.entity.AppointmentStatus;
 import com.healthcare.api.entity.Doctor;
 import com.healthcare.api.entity.Patient;
+import com.healthcare.api.entity.Roles;
 import com.healthcare.api.repository.AppointmentRepository;
 import com.healthcare.api.repository.DoctorRepository;
 import com.healthcare.api.repository.PatientRepository;
@@ -49,12 +50,19 @@ class AppointmentServiceTest {
         Patient patient = new Patient();
         patient.setLastName("Charkaoui");
         patient.setFirstName("Mbarek");
+        patient.setUsername("mbarek.charkaoui");
         patient.setEmail("mbarek@gmail.com");
+        patient.setPassword("test-pass-1");
+        patient.setRole(Roles.PATIENT);
         patient.setPhone("0734124660");
         patientTest = patientRepository.save(patient);
 
         Doctor doctor = new Doctor();
         doctor.setName("Benjelloun");
+        doctor.setUsername("dr.benjelloun");
+        doctor.setEmail("benjelloun@gmail.com");
+        doctor.setPassword("test-pass-2");
+        doctor.setRole(Roles.DOCTOR);
         doctor.setSpecialty("Dentist");
         doctor.setPhone("0573676532");
         doctorTest = doctorRepository.save(doctor);
@@ -116,7 +124,10 @@ class AppointmentServiceTest {
         Patient patient2 = new Patient();
         patient2.setLastName("Arbaoui");
         patient2.setFirstName("Hamid");
+        patient2.setUsername("hamid.arbaoui");
         patient2.setEmail("hamid@gmail.com");
+        patient2.setPassword("test-pass-3");
+        patient2.setRole(Roles.PATIENT);
         patient2.setPhone("54678965");
         Patient savePatient2 = patientRepository.save(patient2);
 
