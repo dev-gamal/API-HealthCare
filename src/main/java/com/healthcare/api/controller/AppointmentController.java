@@ -45,7 +45,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor/{doctorId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @Operation(summary = "Search appointments by doctor")
     public ResponseEntity<Page<AppointmentResponseDTO>> getAppointmentsByDoctor(
             @PathVariable Long doctorId,
@@ -63,7 +63,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/search")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @Operation(summary = "Search appointments by status")
     public ResponseEntity<Page<AppointmentResponseDTO>> searchByStatus(
             @RequestParam AppointmentStatus status,
@@ -79,7 +79,7 @@ public class AppointmentController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @Operation(summary = "Update appointment status")
     public ResponseEntity<AppointmentResponseDTO> updateAppointmentStatus(
             @PathVariable Long id,
@@ -89,7 +89,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/{patientId}/download")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     @Operation(summary = "Download appointments list as PDF")
     public ResponseEntity<InputStreamResource> downloadPatientAppointments(@PathVariable Long patientId) {
         Page<AppointmentResponseDTO> appointmentsPage = appointmentService.getAppointmentByPatient(patientId, PageRequest.of(0, 1000));
@@ -106,5 +106,21 @@ public class AppointmentController {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(pdfStream));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PATIENT')")
+    @Operation(summary = "Update an appointment")
+    public ResponseEntity<AppointmentResponseDTO> updateAppointment(
+            @PathVariable Long id, @Valid @RequestBody AppointmentRequestDTO dto) {
+        return ResponseEntity.ok(appointmentService.updateFullAppointment(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete an appointment")
+    public ResponseEntity<Void> deleteAppointment(@PathVariable Long id) {
+        appointmentService.deleteAppointment(id);
+        return ResponseEntity.noContent().build();
     }
 }

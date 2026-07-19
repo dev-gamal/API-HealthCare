@@ -37,7 +37,7 @@ public class MedicalFileController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @Operation(summary = "Get all medical files")
     public ResponseEntity<Page<MedicalFileResponseDTO>> getAllMedicalFiles(
             @PageableDefault(size = 10, sort = "creationDate") Pageable pageable) {
@@ -45,14 +45,14 @@ public class MedicalFileController {
     }
 
     @GetMapping("/{patientId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     @Operation(summary = "Get file by patient ID")
     public ResponseEntity<MedicalFileResponseDTO> getMedicalFileByPatientId(@PathVariable Long patientId) {
         return ResponseEntity.ok(medicalFileService.getFileByPatientId(patientId));
     }
 
     @PatchMapping("/{id}/notes")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
     @Operation(summary = "Add diagnosis or observation")
     public ResponseEntity<MedicalFileResponseDTO> updateNotes(
             @PathVariable Long id,
@@ -62,7 +62,7 @@ public class MedicalFileController {
     }
 
     @GetMapping("/{patientId}/download")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MEDECIN', 'PATIENT')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR', 'PATIENT')")
     @Operation(summary = "Download medical file as PDF")
     public ResponseEntity<InputStreamResource> downloadMedicalFilePdf(@PathVariable Long patientId) {
         MedicalFileResponseDTO medicalFile = medicalFileService.getFileByPatientId(patientId);
@@ -77,5 +77,21 @@ public class MedicalFileController {
                 .headers(headers)
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(new InputStreamResource(pdfStream));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DOCTOR')")
+    @Operation(summary = "Update a medical file")
+    public ResponseEntity<MedicalFileResponseDTO> updateMedicalFile(
+            @PathVariable Long id, @Valid @RequestBody MedicalFileRequestDTO dto) {
+        return ResponseEntity.ok(medicalFileService.updateMedicalFile(id, dto));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a medical file")
+    public ResponseEntity<Void> deleteMedicalFile(@PathVariable Long id) {
+        medicalFileService.deleteMedicalFile(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -87,4 +87,32 @@ public class AppointmentService {
         Appointment saveAppointment = appointmentRepository.save(appointment);
         return appointmentMapper.toResponseDTO(saveAppointment);
     }
+
+    @Transactional
+    @CacheEvict(value = "appointments", allEntries = true)
+    public AppointmentResponseDTO updateFullAppointment(Long id, AppointmentRequestDTO dto) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
+        Patient patient = patientRepository.findById(dto.getPatientId())
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+        Doctor doctor = doctorRepository.findById(dto.getDoctorId())
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+
+        appointment.setPatient(patient);
+        appointment.setDoctor(doctor);
+        appointment.setAppointmentDate(dto.getAppointmentDate());
+        if (dto.getStatus() != null) {
+            appointment.setStatus(dto.getStatus());
+        }
+
+        return appointmentMapper.toResponseDTO(appointmentRepository.save(appointment));
+    }
+
+    @Transactional
+    @CacheEvict(value = "appointments", allEntries = true)
+    public void deleteAppointment(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Appointment not found with ID: " + id));
+        appointmentRepository.delete(appointment);
+    }
 }

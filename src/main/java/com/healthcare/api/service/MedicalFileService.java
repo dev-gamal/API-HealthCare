@@ -63,4 +63,28 @@ public class MedicalFileService {
         }
         return medicalFileMapper.toResponseDTO(medicalFileRepository.save(file));
     }
+
+    @Transactional
+    @CacheEvict(value = "medicalFiles", allEntries = true)
+    public MedicalFileResponseDTO updateMedicalFile(Long id, MedicalFileRequestDTO dto) {
+        MedicalFile file = medicalFileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medical file not found with ID: " + id));
+
+        if (dto.getDiagnosis() != null) {
+            file.setDiagnosis(dto.getDiagnosis());
+        }
+        if (dto.getObservation() != null) {
+            file.setObservation(dto.getObservation());
+        }
+
+        return medicalFileMapper.toResponseDTO(medicalFileRepository.save(file));
+    }
+
+    @Transactional
+    @CacheEvict(value = "medicalFiles", allEntries = true)
+    public void deleteMedicalFile(Long id) {
+        MedicalFile file = medicalFileRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Medical file not found with ID: " + id));
+        medicalFileRepository.delete(file);
+    }
 }
